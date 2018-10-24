@@ -1,6 +1,7 @@
 import './IDelegate.sol';
 
-contract QueueDelegate is IDelegate {
+contract QueueDelegate {// is IDelegate {
+    mapping (address => Delegate) public delegates;
 
     function join (uint256 stake_amount) public {
         /*
@@ -14,10 +15,14 @@ contract QueueDelegate is IDelegate {
     }
 
     function withdraw () public {
+        require( delegates[msg.sender].exists == true );
+
         withdraw_some( delegates[msg.sender].amount );
     }
 
     function withdraw_some (uint256 stake_amount) public {
+        require( delegates[msg.sender].exists == true );
+
         if ( delegates[ msg.sender ].amount <= stake_amount )
             remove( msg.sender );
         else
@@ -32,17 +37,18 @@ contract QueueDelegate is IDelegate {
         address next;
         address prev;
         uint256 amount;
+        bool exists;
     }
 
     uint256 length = 0;
     address public head;
-    mapping (address => Delegate) public delegates;
 
     function add(address _addr, uint256 _amount) private {
         delegates[_addr] = Delegate({
             next: address(0),
             prev: head,
-            amount: _amount
+            amount: _amount,
+            exists: true
         });
 
         head = _addr;
