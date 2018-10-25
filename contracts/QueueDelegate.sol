@@ -1,27 +1,22 @@
+pragma solidity ^0.4.24;
+
 import './IDelegate.sol';
 
-contract QueueDelegate {// is IDelegate {
-    mapping (address => Delegate) public delegates;
+contract QueueDelegate is IDelegate {
+    mapping (address => Delegate) delegates;
 
     function join (uint256 stake_amount) public {
-        /*
-        Delegate memory d = Delegate({
-            addr: msg.sender,
-            amount: stake_amount
-        });
-        */
-        //delegates.push(d);
         add(msg.sender, stake_amount);
     }
 
     function withdraw () public {
-        require( delegates[msg.sender].exists == true );
+        //require( delegates[msg.sender].exists == true );
 
         withdraw_some( delegates[msg.sender].amount );
     }
 
     function withdraw_some (uint256 stake_amount) public {
-        require( delegates[msg.sender].exists == true );
+        //require( delegates[msg.sender].exists == true );
 
         if ( delegates[ msg.sender ].amount <= stake_amount )
             remove( msg.sender );
@@ -41,7 +36,7 @@ contract QueueDelegate {// is IDelegate {
     }
 
     uint256 length = 0;
-    address public head;
+    address head;
 
     function add(address _addr, uint256 _amount) private {
         delegates[_addr] = Delegate({
