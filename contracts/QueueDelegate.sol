@@ -30,6 +30,8 @@ contract QueueDelegate is IDelegate {
             remove( msg.sender );
         else
             delegates[ msg.sender ].amount -= stake_amount; // Make this a safe subtract
+
+        length -= 1;
     }
 
     function get (address a) view public returns (uint256) {
