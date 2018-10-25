@@ -1,9 +1,17 @@
 pragma solidity ^0.4.24;
 
 import './IDelegate.sol';
+import '../node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol';
 
 contract QueueDelegate is IDelegate {
-    mapping (address => Delegate) delegates;
+    mapping (address => Delegate) public delegates;
+    ERC20Burnable token;
+
+    /*
+    constructor (ERC20Burnable _token) {
+        token = _token;
+    }
+    */
 
     function join (uint256 stake_amount) public {
         add(msg.sender, stake_amount);
@@ -24,6 +32,10 @@ contract QueueDelegate is IDelegate {
             delegates[ msg.sender ].amount -= stake_amount; // Make this a safe subtract
     }
 
+    function get (address a) view public returns (uint256) {
+        return delegates[a].amount;
+    }
+
 
     //
     // Linked list impl
@@ -35,7 +47,7 @@ contract QueueDelegate is IDelegate {
         bool exists;
     }
 
-    uint256 length = 0;
+    uint256 public length = 0;
     address head;
 
     function add(address _addr, uint256 _amount) private {
