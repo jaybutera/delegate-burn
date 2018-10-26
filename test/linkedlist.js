@@ -1,14 +1,28 @@
 const QD = artifacts.require('QueueDelegate')
+const BurnableERC20 = artifacts.require('BurnableERC20')
 
 contract('Linked list test', accounts => {
    let delegate
+   let token
 
    it('Should add 3 stakers to list', async () => {
       delegate = await QD.new();
+      token    = await BurnableERC20.new(1000, { from:accounts[0] })
 
+      // Give stakers tokens
+      token.transfer(accounts[1], 100, { from: accounts[0] })
+      token.transfer(accounts[2], 100, { from: accounts[0] })
+      token.transfer(accounts[3], 100, { from: accounts[0] })
+
+      // Approve delegate staking
+      token.approve(delegate.address, 100, { from: accounts[1] })
+      token.approve(delegate.address, 100, { from: accounts[2] })
+      token.approve(delegate.address, 100, { from: accounts[3] })
+
+      // Join delegate staking
       delegate.join(100, { from: accounts[1] })
-      delegate.join(50, { from: accounts[2] })
-      delegate.join(25, { from: accounts[3] })
+      delegate.join(50,  { from: accounts[2] })
+      delegate.join(25,  { from: accounts[3] })
 
       assert.equal( (await delegate.get(accounts[1])).toNumber(), 100)
       assert.equal( (await delegate.get(accounts[2])).toNumber(), 50)

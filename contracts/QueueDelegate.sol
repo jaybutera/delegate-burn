@@ -1,19 +1,30 @@
 pragma solidity ^0.4.24;
 
 import './IDelegate.sol';
-import '../node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol';
+//import '../node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol';
+import './PoB/BurnableERC20.sol';
 
 contract QueueDelegate is IDelegate {
     mapping (address => Delegate) public delegates;
-    ERC20Burnable token;
+    BurnableERC20 token;
+    //BurnableStakeBank bsb;
+
+    constructor (BurnableERC20 _token){//, BurnableStakeBank _bsb) {
+        token = _token;
+        //bsb   = _bsb;
+    }
 
     /*
-    constructor (ERC20Burnable _token) {
-        token = _token;
+    function burn (uin256 amount) public {
+        address user = head;
+        bsb.burnFor(head, amount, 0x0); // TODO: specify token name in data
     }
     */
 
     function join (uint256 stake_amount) public {
+        // Transfer staker funds to delegate account
+        token.transferFrom(msg.sender, this, stake_amount);
+        // Add staker to burn list
         add(msg.sender, stake_amount);
     }
 
@@ -25,12 +36,18 @@ contract QueueDelegate is IDelegate {
 
     function withdraw_some (uint256 stake_amount) public {
         //require( delegates[msg.sender].exists == true );
+        require( delegates[msg.sender].amount >= stake_amount );
 
+        // Return staker's money
+        token.transfer(msg.sender, stake_amount);
+
+        // Subtract amount or remove staker from burn list altogether
         if ( delegates[ msg.sender ].amount <= stake_amount )
             remove( msg.sender );
         else
             delegates[ msg.sender ].amount -= stake_amount; // Make this a safe subtract
 
+        // Decrement
         length -= 1;
     }
 
