@@ -7,19 +7,16 @@ import './PoB/BurnableERC20.sol';
 contract QueueDelegate is IDelegate {
     mapping (address => Delegate) public delegates;
     BurnableERC20 token;
-    //BurnableStakeBank bsb;
+    BurnableStakeBank bsb;
 
-    constructor (BurnableERC20 _token){//, BurnableStakeBank _bsb) {
+    constructor (BurnableERC20 _token, BurnableStakeBank _bsb) {
         token = _token;
-        //bsb   = _bsb;
+        bsb   = _bsb;
     }
 
-    /*
-    function burn (uin256 amount) public {
-        address user = head;
+    function burn (uint256 amount) public {
         bsb.burnFor(head, amount, 0x0); // TODO: specify token name in data
     }
-    */
 
     function join (uint256 stake_amount) public {
         // Transfer staker funds to delegate account
