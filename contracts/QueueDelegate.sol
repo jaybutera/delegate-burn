@@ -14,8 +14,22 @@ contract QueueDelegate is IDelegate {
         bsb   = _bsb;
     }
 
+    // Returns address of staker that was burned for
+    function burnAllForNext () public returns (address) {
+        address headCpy = head; // Copy head because it will change after burn
+        bsb.burn( delegates[headCpy].amount );
+        return headCpy;
+    }
+
     function burn (uint256 amount) public {
         bsb.burnFor(head, amount, 0x0); // TODO: specify token name in data
+
+        // If all is burned from staker, remove from queue
+        if ( amount >= delegates[head].amount ) {
+            address tmp = head.next; // Temporary storage for new head ptr
+            remove(head);            // Remove current head node
+            head = tmp;              // Replace head ptr
+        }
     }
 
     function join (uint256 stake_amount) public {
