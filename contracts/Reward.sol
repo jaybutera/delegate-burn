@@ -15,11 +15,13 @@ contract Reward is IRewardByBlock {
         returns (address[], uint256[])
     {
         // Burn their tokens
-        address staker = qd.burnAllForNext();
-        address[] memory s = new address[](staker);
+        address staker = qd.burnAllForNext('0x0');
+        address[] memory s = new address[](1);
+        s[0] = staker;
 
         uint256 reward = 1; // Ugly ass constant
-        uint256[] memory r = new address[](reward);
+        uint256[] memory r = new uint256[](1);
+        r[0] = reward;
 
         // Mint c4coin
         return (s, r);
