@@ -111,14 +111,14 @@ contract BurnableStakeBank is Lockable {
      * @param amount Amount of tokens to unstake.
      * @param __data Data field used for signalling in more complex staking applications.
      */
-    function unstake(uint256 amount, bytes __data) public {
-        require(totalStakedFor(msg.sender) >= amount);
+    function unstakeFor(address user, uint256 amount, bytes __data) public {
+        require(totalStakedFor(user) >= amount);
 
-        uint256 preStake   = totalStakedFor(msg.sender);
+        uint256 preStake   = totalStakedFor(user);
         uint256 postStake  = preStake - amount;
         require(postStake >= minimumStake || postStake == 0);
 
-        updateCheckpointAtNow(stakesFor[msg.sender], amount, true);
+        updateCheckpointAtNow(stakesFor[user], amount, true);
         updateCheckpointAtNow(stakeHistory, amount, true);
 
         // Convert bytes to bytes32
@@ -126,7 +126,7 @@ contract BurnableStakeBank is Lockable {
 
         require( tokenRegistry.contains(tokenId));
         IBurnableERC20 token = IBurnableERC20( tokenRegistry.getAddress(tokenId) );
-        require(token.transfer(msg.sender, amount));
+        require(token.transfer(user, amount));
     }
 
     /**

@@ -45,15 +45,15 @@ contract QueueDelegate {// is IDelegate {
     function withdraw (bytes token_id) public {
         //require( stakers[msg.sender].exists == true );
 
-        withdraw_some( stakers[msg.sender].amount, token_id );
+        withdrawSomeFor(msg.sender, stakers[msg.sender].amount, token_id );
     }
 
-    function withdraw_some (uint256 stake_amount, bytes token_id) public {
+    function withdrawSomeFor (address user, uint256 stake_amount, bytes token_id) public {
         //require( stakers[msg.sender].exists == true );
         require( stakers[msg.sender].amount >= stake_amount );
 
         // Return staker's money
-        bsb.unstake(stake_amount, token_id);
+        bsb.unstakeFor(user, stake_amount, token_id);
 
         // TODO: Should not track stake amount in QD contract since it's already tracked in BSB
 
