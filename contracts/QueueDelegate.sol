@@ -3,24 +3,41 @@ pragma solidity ^0.4.24;
 import './IDelegate.sol';
 //import '../node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol';
 import './PoB/BurnableERC20.sol';
+import './PoB/BurnableStakeBank.sol';
 
 contract QueueDelegate is IDelegate {
     mapping (address => Delegate) public delegates;
-    BurnableERC20 token;
+    //BurnableERC20 token;
     BurnableStakeBank bsb;
 
-    constructor (BurnableERC20 _token, BurnableStakeBank _bsb) {
-        token = _token;
+    constructor (BurnableStakeBank _bsb) {
+        //token = _token;
         bsb   = _bsb;
     }
 
-    function burn (uint256 amount) public {
-        bsb.burnFor(head, amount, 0x0); // TODO: specify token name in data
+    // Returns address of staker that was burned for
+    function burnAllForNext (bytes __data) public returns (address) {
+        address headCpy = head; // Copy head because it will change after burn
+        bsb.burn( delegates[headCpy].amount, __data );
+        return headCpy;
     }
 
-    function join (uint256 stake_amount) public {
+    function burn (uint256 amount, bytes __data) public {
+        bsb.burnFor(head, amount, __data); // TODO: specify token name in data
+
+        // If all is burned from staker, remove from queue
+        if ( amount >= delegates[head].amount ) {
+            address tmp = head.next; // Temporary storage for new head ptr
+            remove(head);            // Remove current head node
+            head = tmp;              // Replace head ptr
+        }
+    }
+
+    function join (uint256 stake_amount, bytes token_id) public {
         // Transfer staker funds to delegate account
-        token.transferFrom(msg.sender, this, stake_amount);
+        // token.transferFrom(msg.sender, this, stake_amount);
+        bsb.stake(msg.sender, stake_amount, token_id);
+
         // Add staker to burn list
         add(msg.sender, stake_amount);
     }
@@ -87,3 +104,4 @@ contract QueueDelegate is IDelegate {
         delete delegates[_addr];
     }
 }
+
