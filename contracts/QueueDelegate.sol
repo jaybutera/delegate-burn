@@ -6,7 +6,6 @@ import './PoB/BurnableERC20.sol';
 import './PoB/BurnableStakeBank.sol';
 
 contract QueueDelegate {// is IDelegate {
-    event Debug(uint256 x);
     mapping (address => Staker) public stakers;
     //BurnableERC20 token;
     BurnableStakeBank bsb;
@@ -19,7 +18,6 @@ contract QueueDelegate {// is IDelegate {
     // Returns address of staker that was burned for
     function burnAllForNext (bytes __data) public returns (address) {
         address headCpy = head; // Copy head because it may change after burn
-        emit Debug(stakers[headCpy].amount);
         burn(stakers[headCpy].amount, __data);
         return headCpy;
     }
@@ -106,6 +104,7 @@ contract QueueDelegate {// is IDelegate {
 
         stakers[prev_id].next = next_id;
         delete stakers[_addr];
+        length -= 1;
     }
 }
 
