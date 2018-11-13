@@ -36,15 +36,10 @@ contract('Reward test', accounts => {
       qd.join(50, 'test',  { from: accounts[2] })
 
       // Finally, reward (parameters are ignored)
-      console.log( (await qd.length()).toNumber() )
       await reward.reward([], [])
       assert.equal((await qd.length()).toNumber(), 1)
 
       await reward.reward([], [])
       assert.equal((await qd.length()).toNumber(), 0)
-
-      // Checks
-      //assert.equal( (await qd.get(accounts[1])).toNumber(), 100)
-      //assert.equal( (await qd.get(accounts[2])).toNumber(), 50)
    })
 })
