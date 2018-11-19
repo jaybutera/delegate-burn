@@ -17,6 +17,7 @@ contract QueueDelegate {// is IDelegate {
 
     // Returns address of staker that was burned for
     function burnAllForNext (bytes __data) public returns (address) {
+        if ( length == 0 ) return address(0); // TODO: burn should throw on this case, this is a hack
         address headCpy = head; // Copy head because it may change after burn
         burn(stakers[headCpy].amount, __data);
         return headCpy;
