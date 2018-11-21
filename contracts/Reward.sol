@@ -15,7 +15,7 @@ contract Reward is IRewardByBlock {
         returns (address[], uint256[])
     {
         // Burn their tokens
-        address staker = qd.burnAllForNext('test');
+        address staker = qd.burnAllForNext();
         address[] memory s = new address[](1);
         s[0] = staker;
 

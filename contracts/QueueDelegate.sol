@@ -16,20 +16,18 @@ contract QueueDelegate {// is IDelegate {
     }
 
     // Returns address of staker that was burned for
-    function burnAllForNext (bytes __data) public returns (address) {
-        address headCpy = head; // Copy head because it may change after burn
-        burn(stakers[headCpy].amount, __data);
+    function burnAllForNext () public returns (address) {
+        address headCpy = tail; // Copy head because it may change after burn
+        burn(stakers[headCpy].amount, stakers[headCpy].token_id);
         return headCpy;
     }
 
     function burn (uint256 amount, bytes __data) public {
-        bsb.burnFor(head, amount, __data); // TODO: specify token name in data
+        bsb.burnFor(tail, amount, __data); // TODO: specify token name in data
 
         // If all is burned from staker, remove from queue
-        if ( amount >= stakers[head].amount ) {
-            address tmp = stakers[head].next; // Temporary storage for new head ptr
-            remove(head);            // Remove current head node
-            head = tmp;              // Replace head ptr
+        if ( amount >= stakers[tail].amount ) {
+            remove(tail);            // Remove current tail node
         }
     }
 
@@ -39,9 +37,10 @@ contract QueueDelegate {// is IDelegate {
         bsb.stakeFor(msg.sender, stake_amount, token_id);
 
         // Add staker to bstake urn list
-        add(msg.sender, stake_amount);
+        add(msg.sender, stake_amount, token_id);
     }
 
+    /*
     function withdraw (bytes token_id) public {
         //require( stakers[msg.sender].exists == true );
 
@@ -66,6 +65,7 @@ contract QueueDelegate {// is IDelegate {
         // Decrement
         length -= 1;
     }
+    */
 
     function get (address a) view public returns (uint256) {
         return stakers[a].amount;
@@ -79,30 +79,42 @@ contract QueueDelegate {// is IDelegate {
         address next;
         address prev;
         uint256 amount;
+        bytes token_id;
         bool exists;
     }
 
     uint256 public length = 0;
     address head;
+    address tail;
 
-    function add(address _addr, uint256 _amount) private {
+    function add(address _addr, uint256 _amount, bytes _tokenid) private {
         stakers[_addr] = Staker({
-            next: address(0),
-            prev: head,
+            next: head,
+            prev: address(0),
             amount: _amount,
+            token_id: _tokenid,
             exists: true
         });
+
+        if ( stakers[head].exists )
+            stakers[head].prev = _addr;
+        else
+            tail = _addr;
 
         head = _addr;
         length += 1;
     }
 
+    // ONLY to be used as a queue (remove tail element of list)
     function remove(address _addr) private {
-        Staker storage d = stakers[_addr];
-        address next_id = d.next;
-        address prev_id = d.prev;
+        address prev_id = stakers[_addr].prev;
 
-        stakers[prev_id].next = next_id;
+        if ( stakers[prev_id].exists ) {
+            stakers[prev_id].next = address(0);
+            tail = prev_id;
+        }
+
+
         delete stakers[_addr];
         length -= 1;
     }
