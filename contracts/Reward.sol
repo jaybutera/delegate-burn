@@ -6,9 +6,14 @@ import "./QueueDelegate.sol";
 contract Reward is IRewardByBlock {
     QueueDelegate qd;
 
+    function set(QueueDelegate _qd) public {
+        qd = _qd;
+    }
+    /*
     constructor(QueueDelegate _qd) public {
         qd = _qd;
     }
+    */
 
     function reward(address[] benefactors, uint16[] kind)
         external
